@@ -40,7 +40,7 @@ jobs:
           az deployment group create \
             --resource-group ${{ secrets.DEVRESOURCEGROUP }} \
             --name deployinfradev \
-            --template-file arm-devsecops-update.json
+            --template-file ARM-DevSecOps-update.json
         azcliversion: latest
 
   DeployProdInfrastructure_Stage_DeployInfrastructure:
