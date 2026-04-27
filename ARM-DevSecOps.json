@@ -31,8 +31,22 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "variables": {},
   "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-03-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "B1",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
     {
       "type": "Microsoft.ContainerRegistry/registries",
       "apiVersion": "2021-12-01-preview",
@@ -46,20 +60,6 @@
       }
     },
     {
-      "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2021-11-01-preview",
-      "name": "[parameters('keyvaultName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "sku": {
-          "family": "A",
-          "name": "standard"
-        },
-        "accessPolicies": [],
-        "tenantId": "[parameters('tenantId')]"
-      }
-    },
-    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-03-01",
       "name": "[parameters('containerInstanceName')]",
@@ -70,7 +70,10 @@
         "siteConfig": {
           "linuxFxVersion": "DOCKER|sonarqube"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+      ]
     },
     {
       "type": "Microsoft.Web/sites",
@@ -83,7 +86,10 @@
         "siteConfig": {
           "linuxFxVersion": "[format('DOCKER|{0}/juiceshopgit:1', reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))).loginServer)]"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+      ]
     }
   ]
 }
